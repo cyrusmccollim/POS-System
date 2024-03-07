@@ -5,6 +5,7 @@ public class POSApplication {
     // Main window.
     private final JFrame window;
     private final Dimension windowSize;
+    private final Dimension screenSize;
 
     // Main panels.
     private final JPanel saleMetrics;
@@ -18,7 +19,8 @@ public class POSApplication {
     public POSApplication(){
         // Window
         window = new JFrame();
-        windowSize = new Dimension(1280, 720);
+        screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        windowSize = new Dimension((int) (screenSize.width * 0.75), (int) (screenSize.height * 0.75));
 
         // Main Panels
         saleMetrics = new JPanel(new GridLayout(1, 4, 10, 10)){
