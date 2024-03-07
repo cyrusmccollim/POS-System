@@ -2,92 +2,161 @@ import javax.swing.*;
 import java.awt.*;
 
 public class POSApplication {
-    private final JFrame window = new JFrame();
+    // Main window.
+    private final JFrame window;
+    private final Dimension windowSize;
 
-    private final ImageIcon windowIcon = new ImageIcon("elements\\window_icon.png");
-
-    private final JButton[] numberPadButtons = new JButton[12];
-
-    private final JPanel saleMetrics = new JPanel();
-    private final JPanel products = new JPanel();
-    private final JPanel numberPad = new JPanel();
-
-    private final Color veryLightBlue = new Color(191, 218, 255);
-    private final Color lightBlue = new Color(162, 196, 242);
-    private final Color normalBlue = new Color(116, 170, 242);
+    // Main panels.
+    private final JPanel saleMetrics;
+    private final JPanel products;
+    private final JPanel numberPad;
 
     public static void main(String[] args) {
         new POSApplication();
     }
 
     public POSApplication(){
-        window.setSize(new Dimension(1280, 720));
-        window.setMinimumSize(window.getSize());
+        // Window
+        window = new JFrame();
+        windowSize = new Dimension(1280, 720);
 
-        initializeNumberPadButtons();
+        // Main Panels
+        saleMetrics = new JPanel(new GridLayout(1, 4, 10, 10)){
+            @Override public Insets getInsets(){
+                return new Insets(10, 10, 10, 10);
+            }
+        };
+        products = new JPanel(new GridLayout(5, 4, 10, 10)){
+            @Override public Insets getInsets(){
+                return new Insets(10, 10, 10, 10);
+            }
+        };
+        numberPad = new JPanel(new GridLayout(4, 3,10, 10)){
+            @Override public Insets getInsets(){
+                return new Insets(10, 10, 10, 10);
+            }
+        };
 
+        // Configurations
         configureWindowSettings();
         configurePanelSettings();
 
-        addElementsToPanels();
-        addPanelsToWindow();
+        // Creating Elements
+        addNumberPadButtons();
+        addSaleMetrics();
 
+        // Adding Panels
+        window.add(saleMetrics, BorderLayout.NORTH);
+        window.add(products, BorderLayout.CENTER);
+        window.add(numberPad, BorderLayout.EAST);
+
+        // Launching Window
+        window.pack();
         window.setVisible(true);
     }
 
-    private void addElementsToPanels(){
-        for(JButton button : numberPadButtons){
+    private void configurePanelSettings(){
+        // Bounds
+        saleMetrics.setBounds(0, 0, windowSize.width, (int) (windowSize.height * 0.250));
+        products.setBounds(0, saleMetrics.getHeight(), (int) (windowSize.width * 0.6666), windowSize.height - saleMetrics.getHeight());
+        numberPad.setBounds(products.getWidth(), saleMetrics.getHeight(), (int) (windowSize.width * 0.3333), windowSize.height - saleMetrics.getHeight());
+        // Backgrounds
+        saleMetrics.setBackground(AppColors.VERY_LIGHT_BLUE);
+        products.setBackground(AppColors.NORMAL_BLUE);
+        numberPad.setBackground(AppColors.LIGHT_BLUE);
+        // Border Styles
+        saleMetrics.setBorder(BorderFactory.createBevelBorder(0));
+        products.setBorder(BorderFactory.createBevelBorder(0));
+        numberPad.setBorder(BorderFactory.createBevelBorder(0));
+    }
+
+    private void configureWindowSettings(){
+        // Identity
+        window.setTitle("POS System");
+        window.setIconImage(new ImageIcon("elements\\window_icon.png").getImage());
+        // Sizing
+        window.setMinimumSize(windowSize);
+        window.setResizable(false);
+        // Layout
+        window.setLayout(new BorderLayout());
+        // Behavior
+        window.setLocationRelativeTo(null);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    private void addSaleMetrics(){
+        String[][] elements = {
+                // Title, Subtitle, Image
+                {"$0.00", "Total", null},
+                {"$0.00", "Cost Per Pound", null},
+                {"0.00lb", "Weight", null},
+                {null, null, "elements\\search_icon.png"},
+        };
+
+        for (String[] element : elements) {
+            JPanel saleMetric = new JPanel(new GridBagLayout()){
+                @Override public Insets getInsets(){ return new Insets(20, 0, 30, 0); }
+            };
+            saleMetric.setBorder(BorderFactory.createBevelBorder(0));
+            saleMetric.setVisible(true);
+
+            // TITLE
+            if (element[0] != null) {
+                JLabel title = new JLabel();
+                title.setText("<html><center>" + element[0]);
+                title.setFont(new Font("Calibri", Font.PLAIN, 80));
+                title.setVisible(true);
+                // Constraints
+                GridBagConstraints titleConstraints = new GridBagConstraints();
+                titleConstraints.gridx = 0;
+                titleConstraints.gridy = 0;
+                titleConstraints.weighty = 0.66;
+                titleConstraints.fill = GridBagConstraints.BOTH;
+                // Add
+                saleMetric.add(title, titleConstraints);
+            }
+
+            // SUBTITLE
+            if (element[1] != null) {
+                JLabel subtitle = new JLabel();
+                subtitle.setText("<html><center>" + element[1]);
+                subtitle.setFont(new Font("Calibri", Font.PLAIN, 30));
+                subtitle.setVisible(true);
+                // Constraints
+                GridBagConstraints subtitleConstraints = new GridBagConstraints();
+                subtitleConstraints.gridx = 0;
+                subtitleConstraints.gridy = 1;
+                subtitleConstraints.weighty = 0.33;
+                subtitleConstraints.fill = GridBagConstraints.BOTH;
+                // Add
+                saleMetric.add(subtitle, subtitleConstraints);
+            }
+
+            // IMAGE
+            if (element[2] != null){
+                JLabel imageLabel = new JLabel();
+                Image imageScaled = new ImageIcon(element[2]).getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                imageLabel.setIcon(new ImageIcon(imageScaled));
+                saleMetric.add(imageLabel);
+            }
+
+            saleMetrics.add(saleMetric);
+        }
+    }
+
+    private void populateProducts(){
+        // TBI
+    }
+
+    private void addNumberPadButtons(){
+        String[] buttons = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "Del", "0", "Enter"};
+        for (String buttonName : buttons) {
+            JButton button = new JButton(buttonName);
+            button.setFont(new Font("Calibri", Font.PLAIN, (Utility.isInteger(button.getText())) ? 50 : 35));
+            button.setFocusable(false);
+            button.setVisible(true);
             numberPad.add(button);
         }
     }
 
-    private void addPanelsToWindow(){
-        window.add(saleMetrics);
-        window.add(products);
-        window.add(numberPad);
-    }
-
-    private void configurePanelSettings(){
-        // Setting Positions & Dimensions.
-        saleMetrics.setBounds(0, 0, window.getWidth(), (int) (window.getHeight() * 0.250));
-        products.setBounds(0, saleMetrics.getHeight(), (int) (window.getWidth() * 0.666), window.getHeight() - saleMetrics.getHeight());
-        numberPad.setBounds(products.getWidth(), saleMetrics.getHeight(), (int) (window.getWidth() * 0.333), window.getHeight() - saleMetrics.getHeight());
-
-        // Setting Backgrounds.
-        saleMetrics.setBackground(veryLightBlue);
-        products.setBackground(normalBlue);
-        numberPad.setBackground(lightBlue);
-
-        numberPad.setLayout(new GridLayout(4, 3));
-    }
-
-    private void configureWindowSettings(){
-        window.setTitle("POS System");
-        window.setIconImage(windowIcon.getImage());
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setLocationRelativeTo(null);
-        window.setLayout(null);
-        window.setResizable(true);
-    }
-
-    public void initializeNumberPadButtons(){
-        numberPadButtons[0] = new JButton("1");
-        numberPadButtons[1] = new JButton("2");
-        numberPadButtons[2] = new JButton("3");
-        numberPadButtons[3] = new JButton("4");
-        numberPadButtons[4] = new JButton("5");
-        numberPadButtons[5] = new JButton("6");
-        numberPadButtons[6] = new JButton("7");
-        numberPadButtons[7] = new JButton("8");
-        numberPadButtons[8] = new JButton("9");
-        numberPadButtons[9] = new JButton("Delete");
-        numberPadButtons[10] = new JButton("0");
-        numberPadButtons[11] = new JButton("Enter");
-
-        for (JButton button : numberPadButtons){
-            button.setFocusable(false);
-            button.setVisible(true);
-            button.setFont(new Font("Calibri", Font.PLAIN, (Utility.isInteger(button.getText()))? 50 : 25));
-        }
-    }
 }
