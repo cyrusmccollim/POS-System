@@ -1,9 +1,5 @@
 import javax.swing.*;
-import javax.xml.crypto.Data;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.util.*;
 
 public class POSApplication {
 
