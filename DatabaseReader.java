@@ -1,17 +1,45 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DatabaseReader {
-    public static ArrayList<String[]> readFile(String path) {
-        ArrayList<String[]> dataLines = new ArrayList<>();
+    public static ArrayList<Product> readProducts(String path) {
+        ArrayList<Product> products = new ArrayList<>();
+
+        BufferedReader reader;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            List<String> fileLines = reader.lines().toList();
-            for (String fileLine : fileLines)
-                dataLines.add(fileLine.strip().split(","));
-        } catch (Exception e){
-            System.out.println("Unable to read file.");
+            reader = new BufferedReader(new FileReader(path));
+        } catch (Exception e) {
+            Logger.addLog("Unable to read file: " + path);
+            return null;
         }
-        return dataLines;
+
+        List<String> lines = reader.lines().toList();
+        String[] productInfo = {};
+        for (String productAttributes : lines){
+            try {
+                productInfo = productAttributes.strip().split(",");
+                products.add(new Product(productInfo[0], Double.parseDouble(productInfo[1]), productInfo[2]));
+            } catch (Exception e){
+                Logger.addLog("Unable to parse product. Data: " + Arrays.toString(productInfo));
+            }
+        }
+
+        return products;
+    }
+
+    public static ArrayList<SaleMetric> retrieveSaleMetrics(){
+        ArrayList<SaleMetric> saleMetrics = new ArrayList<>();
+
+        String[] metrics = {"Total", "Cost/lb", "Weight", "Product"};
+
+        for (String metric : metrics) {
+            SaleMetric saleMetric = new SaleMetric(metric, "--");
+            saleMetrics.add(saleMetric);
+        }
+
+        return saleMetrics;
     }
 }
